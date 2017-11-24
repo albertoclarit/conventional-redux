@@ -1,11 +1,11 @@
 import { connect } from 'react-redux'
 import { interactors } from './index';
 
-export function connectAllInteractors(klass) {
-  return connectInteractors(klass, Object.keys(interactors));
+export function connectAllInteractors(klass,mapStateToProps,mapDispatchToProps) {
+  return connectInteractors(klass, Object.keys(interactors),mapStateToProps,mapDispatchToProps);
 }
 
-export function connectInteractors(klass, interactorNames) {
+export function connectInteractors(klass, interactorNames,mapStateToProps,mapDispatchToProps) {
   if(isString(interactorNames)) { interactorNames = [interactorNames] }
 
   class ConnectedComponent extends klass {
@@ -27,7 +27,26 @@ export function connectInteractors(klass, interactorNames) {
     defineShouldComponentUpdate(ConnectedComponent);
   }
 
-  return connect((state) => connectHash(interactorNames, state))(ConnectedComponent);
+
+
+  const stateToPropCreator = (state)=>{
+    if(typeof mapStateToProps === 'function' ){
+
+        return {
+            ...connectHash(interactorNames, state),
+            ...mapStateToProps(state)
+        }
+    }
+    else {
+        return {
+            ...connectHash(interactorNames, state),
+
+        }
+    }
+
+  };
+
+  return connect(stateToPropCreator,mapDispatchToProps)(ConnectedComponent);
 }
 
 function defineActionProperties(klass, interactorNames) {
