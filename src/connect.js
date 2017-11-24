@@ -46,7 +46,22 @@ export function connectInteractors(klass, interactorNames,mapStateToProps,mapDis
 
   };
 
-  return connect(stateToPropCreator,mapDispatchToProps)(ConnectedComponent);
+    const dispatchToPropCreator = (dispatch)=>{
+
+        if(typeof mapDispatchToProps === 'function' ){
+
+            return {
+                ...mapDispatchToProps(dispatch),
+                dispatch
+            }
+        }
+        else {
+            return {
+                dispatch
+            }
+        }
+    };
+  return connect(stateToPropCreator,dispatchToPropCreator)(ConnectedComponent);
 }
 
 function defineActionProperties(klass, interactorNames) {
